@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 #
 # pocket2csv
 #
@@ -107,21 +107,21 @@ read -r -d '' MY_DATA <<EOF
 }
 EOF
 
-echo "[+] Downloading Pocket bookmarks to bookmarks.json..."
+echo "[+] Downloading Pocket bookmarks to bookmarks_unread.json..."
 
 curl \
   --silent \
   --request POST \
   --url https://getpocket.com/v3/get \
   --header 'content-type: application/json' \
-  --output bookmarks.json \
+  --output bookmarks_unread.json \
   --data "$MY_DATA"
 
 
-echo "[+] Converting bookmarks.json to bookmarks.csv..."
-echo " [>] Creating intermediate file bookmarks-tmp.json..."
+echo "[+] Converting bookmarks_unread.json to bookmarks_unread.csv..."
+echo " [>] Creating intermediate file bookmarks-unread-tmp.json..."
 
-jq '.list | .[]' bookmarks.json \
+jq '.list | .[]' bookmarks_unread.json \
 | jq '
 if .tags == null
  then
@@ -184,13 +184,13 @@ resolved_domain: .resolved_domain,
 resolved_tld1: .resolved_tld1,
 resolved_tld2: .resolved_tld2,
 resolved_url: .resolved_url,
-excerpt: .excerpt}' > bookmarks-tmp.json
+excerpt: .excerpt}' > bookmarks-unread-tmp.json
 
-jq -r -s '.[0] | keys_unsorted | @csv' < bookmarks-tmp.json > bookmarks.csv
+jq -r -s '.[0] | keys_unsorted | @csv' < bookmarks-unread-tmp.json > bookmarks_unread.csv
 
-echo " [>] Writing to bookmarks.csv..."
+echo " [>] Writing to bookmarks_unread.csv..."
 
-jq 'map(.)' bookmarks-tmp.json \
-| jq -r '@csv' >> bookmarks.csv
+jq 'map(.)' bookmarks-unread-tmp.json \
+| jq -r '@csv' >> bookmarks_unread.csv
 
 echo "[+] Done."
